@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const createError = require('http-errors');
 const express = require('express');
+const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -27,12 +28,11 @@ async function init() {
   require('./models/transaction')
 
   passport.use(new LocalStrategy(
-    async function(username, password, done) {
-      console.log("RUNNIGN LOCAL STRATEGY");
+    async function(email, password, done) {
       try {
         const user = await userModel.findOne({
           where: {
-            username
+            email
         }});
         if (!user) {
           return done(null, false, { message: 'Incorrect email.' });
@@ -49,15 +49,18 @@ async function init() {
   ));
 
   passport.serializeUser(function(user, done) {
+    console.log(`Serializing user ${user.id} ----`)
     done(null, user.id);
   });
   
   passport.deserializeUser(async function(id, done) {
+    console.log("deserialzing user --- ")
     try {
       const user = await userModel.findOne({
         where: id
       });
-      done(null, user);
+      console.log('deserizlized', {user: user.toJSON()})
+      done(null, user.toJSON());
     } catch(err) {
       done(err);
     }
@@ -67,6 +70,12 @@ async function init() {
   const usersRouter = require('./routes/users');
   const transactionsRouter = require('./routes/transactions');
 
+  const corsOptions = {
+    origin: 'https://nyc-ttp-stocks.herokuapp.com/',
+    optionsSuccessStatus: 200
+  }
+
+  app.use(cors(corsOptions));
   app.use(logger('dev'));
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
@@ -79,35 +88,13 @@ async function init() {
   }));
   app.use(passport.initialize());
   app.use(passport.session());
-     
-  app.post('/login', async (req,res) => {  
-    console.log(req.body)
 
-    let user = await req.body.username
-    let pass = await req.body.password
-    let LS = async function (username , password ) {
-    console.log("RUNNIGN LOCAL STRATEGY", username);
-    try {
-      const user = await userModel.findOne({
-        where: {
-          username
-      }});
-      if (!user) {
-        res.status(500).send(done(null, false, { message: 'Incorrect email.' }));
-      }
-      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-      if (!await bcrypt.compare(password, hashedPassword)) {
-        res.status(500).send(done(null, false, { message: 'Incorrect password.' }));
-      }
-      return done(null, user);
-    } catch (err) {
-      res.send(err);
-    }
-  }
-  passport.authenticate('local', 
- LS(user, pass)
-  )()
-  }); 
+  app.post('/login', passport.authenticate('local'), function(req, res) {
+    // If this function gets called, authentication was successful.
+    // `req.user` contains the authenticated user.
+    console.log('logged in', req.user.id)
+    res.send(200)
+  });
                             
   app.use('/', indexRouter); 
   app.use('/users', usersRouter);

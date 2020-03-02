@@ -1,35 +1,40 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { Form, Field } from 'react-advanced-form';
 import { Input, Button } from 'react-advanced-form-addons';
-import axios from 'axios';
+import api from './api';
 
 class LoginForm extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      wasResgistered: false
+    }
+  }
+
+
   loginUser = ({ serialized }) => {
-    // return fetch('/login', {
-    //   body: JSON.stringify(serialized)
-    // })
     console.log(serialized)
-    return axios.post('/login', {
-      body: {
-        username:serialized.username,
-        password: serialized.password
-      }
+    return api.post('/login', {
+      username:serialized.username,
+      password: serialized.password
     })
     .then(res =>{
       console.log(res)
      try{
-      alert(res.data);
-      // this.setState({wasResgistered: res.data.wasResgistered})
+      console.log(res.data);
+      this.setState({wasResgistered: res.status === 200})
      } catch {
        alert('Registration Failed.');
-      //  this.setState({wasResgistered: res.data.wasResgistered})
+       this.setState({wasResgistered: res.status !== 200})
      }
     })
   }
 
   render() {
-    return (
+    console.log({statee: this.state})
+    return this.state.wasResgistered ?  <Redirect to='/portal/home/portfolio'/> : (
       <div>
         <h2>Login</h2>
         <Form

@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+require('dotenv').config()
+
 const Cash = require('../models/cash')
 const User = require('../models/user')
 const Stock = require('../models/stock')

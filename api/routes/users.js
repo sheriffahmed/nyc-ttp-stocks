@@ -11,14 +11,13 @@ const DEFAULT_BALANCE = 5000;
 
 // User Signup Endpoint
 router.post('/', async function(req, res) {
-  console.log(req.body.body)
   const t = await sequelize.transaction();
   try {
-    const hashedPassword = await bcrypt.hash(req.body.body.userPassword, SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(req.body.userPassword, SALT_ROUNDS);
     const user = await userModel.create({
-      first: req.body.body.primaryInfo.firstName,
-      last: req.body.body.primaryInfo.lastName,
-      email: req.body.body.primaryInfo.userEmail,
+      first: req.body.primaryInfo.firstName,
+      last: req.body.primaryInfo.lastName,
+      email: req.body.primaryInfo.userEmail,
       password: hashedPassword
     });
     if (!user) {
@@ -43,7 +42,7 @@ router.get('/:id/cash', async function(req, res) {
   try { 
     const cashAccount = await cashModel.findOne({
       where: {
-        userId: req.params.id
+        userId: req.user.id
       }
     }) 
     console.log("where da money js");
@@ -60,12 +59,12 @@ router.get('/:id/cash', async function(req, res) {
 
 router.get('/:id/portfolio', async function(req, res) {
   try { 
-    const portfolio = await portfolioLib.getPortfolio(req.params.id)
+    const portfolio = await portfolioLib.getPortfolio(req.user.id)
     if (!portfolio) {
       res.sendStatus(404);
       return;
     }
-    res.send(portfolio) 
+    res.send(portfolio);
   } catch (err) {
     console.log(err)
     res.sendStatus(500)

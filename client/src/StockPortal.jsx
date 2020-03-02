@@ -3,7 +3,7 @@ import React from 'react';
 import { Redirect, Link, Switch, Route } from "react-router-dom";
 import Portfolio from './Portfolio';
 import Transactions from './Transactions';
-import axios from 'axios'
+import api from './api'
 
 class StockPortal extends React.Component {
   constructor(props) {
@@ -24,8 +24,8 @@ class StockPortal extends React.Component {
 
   async componentDidMount() {
     try {
-      const resPort = await axios.get(`/users/1/portfolio`);
-      const resTrans = await axios.get(`/transactions/1`);
+      const resPort = await api.get(`/users/main/portfolio`);
+      const resTrans = await api.get(`/transactions/main`);
       this.setState({
         portfolio: { ...resPort.data },
         transactions: resTrans.data,

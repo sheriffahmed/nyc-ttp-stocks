@@ -1,5 +1,5 @@
 import React from 'react';
-import axios from 'axios';
+import api from './api';
 
 class Transactions extends React.Component {
   constructor(props) {
@@ -16,7 +16,7 @@ class Transactions extends React.Component {
     }
 
     try {
-      const resTrans = await axios.get(`/transactions/1`);
+      const resTrans = await api.get(`/transactions/main`);
       this.setState({
         transactions: resTrans.data
       });

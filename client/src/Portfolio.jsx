@@ -1,6 +1,6 @@
 import './App.css';
 import React from 'react';
-import axios from 'axios';
+import api from './api';
 
 class Portfolio extends React.Component {
   constructor(props) {
@@ -22,7 +22,7 @@ class Portfolio extends React.Component {
 
   async componentDidMount() {
     try {
-      const resPort = await axios.get(`/users/1/portfolio`);
+      const resPort = await api.get(`/users/main/portfolio`);
       this.setState({
         portfolio: { ...resPort.data }
       });
@@ -39,7 +39,7 @@ class Portfolio extends React.Component {
     e.preventDefault();
     try {
       let { symbolSearch, quantity } = this.state
-      const resBuy = await axios.post(`/transactions/1`, {
+      const resBuy = await api.post(`/transactions/new`, {
         symbol: symbolSearch,
         quantity: Number(quantity)
       })
@@ -48,7 +48,7 @@ class Portfolio extends React.Component {
             buyResponse: alert(`Your remaining Cash Balance is: ${res.data.balance}`)
           })
         })
-        .then(async () => await axios.get(`/users/1/portfolio`)
+        .then(async () => await api.get(`/users/main/portfolio`)
           .then(portfolio => this.setState({
             portfolio: { ...portfolio.data }
           })

@@ -13,7 +13,7 @@ router.get('/:userId', async function(req, res, next) {
   try {
     const userTransactions = await transactionModel.findAll({
       where: {
-        userId: req.params.userId
+        userId: req.user.id
       }
     });
     res.send(userTransactions.map( t => t.toJSON()));
@@ -56,7 +56,7 @@ router.post('/:userid', async function(req, res, next) {
     }
     const cashAccount = await cashModel.findOne({
       where: {
-        userId: req.params.userid
+        userId: req.user.id
       }
     }) 
     const stockPrice = await stocksLib.getPrice(req.body.symbol) * req.body.quantity;
@@ -70,7 +70,7 @@ router.post('/:userid', async function(req, res, next) {
     
     await cashAccount.save();
     await transactionModel.create({
-      userId: req.params.userid,
+      userId: req.user.id,
       symbol: req.body.symbol,
       quantity: req.body.quantity,
       cost: stockPrice
@@ -78,14 +78,14 @@ router.post('/:userid', async function(req, res, next) {
 
     const portfolio = await portfolioModel.findOne({
       where: {
-        userId: req.params.userid,
+        userId: req.user.id,
         symbol: req.body.symbol
       }
     });
     
     if (!portfolio) {
       await portfolioModel.create({
-        userId: req.params.userid,
+        userId: req.user.id,
         symbol: req.body.symbol,
         quantity: req.body.quantity
       });

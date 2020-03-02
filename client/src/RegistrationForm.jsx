@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { Form, Field } from 'react-advanced-form';
 import { Input, Button } from 'react-advanced-form-addons';
-import axios from 'axios';
+import api from './api';
 
 class RegistrationForm extends React.Component {
   constructor(props) {
@@ -16,8 +16,8 @@ class RegistrationForm extends React.Component {
 
   registerUser = ({ serialized }) => {
     // console.log(serialized)
-    return axios.post('/users', {
-      body: serialized
+    return api.post('/users', {
+      ...serialized
     })
     .then(res =>{
       console.log(res)
