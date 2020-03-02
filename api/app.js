@@ -27,11 +27,12 @@ async function init() {
   require('./models/transaction')
 
   passport.use(new LocalStrategy(
-    async function(email, password, done) {
+    async function(username, password, done) {
+      console.log("RUNNIGN LOCAL STRATEGY");
       try {
         const user = await userModel.findOne({
           where: {
-            email
+            username
         }});
         if (!user) {
           return done(null, false, { message: 'Incorrect email.' });
@@ -78,10 +79,37 @@ async function init() {
   }));
   app.use(passport.initialize());
   app.use(passport.session());
+     
+  app.post('/login', async (req,res) => {  
+    console.log(req.body)
 
-  app.post('/login', passport.authenticate('local', { successRedirect: '/',
-                                                    failureRedirect: '/login' }));                                       
-  app.use('/', indexRouter);
+    let user = await req.body.username
+    let pass = await req.body.password
+    let LS = async function (username , password ) {
+    console.log("RUNNIGN LOCAL STRATEGY", username);
+    try {
+      const user = await userModel.findOne({
+        where: {
+          username
+      }});
+      if (!user) {
+        res.status(500).send(done(null, false, { message: 'Incorrect email.' }));
+      }
+      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+      if (!await bcrypt.compare(password, hashedPassword)) {
+        res.status(500).send(done(null, false, { message: 'Incorrect password.' }));
+      }
+      return done(null, user);
+    } catch (err) {
+      res.send(err);
+    }
+  }
+  passport.authenticate('local', 
+ LS(user, pass)
+  )()
+  }); 
+                            
+  app.use('/', indexRouter); 
   app.use('/users', usersRouter);
   app.use('/transactions', transactionsRouter);
   

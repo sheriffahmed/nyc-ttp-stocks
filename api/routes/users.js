@@ -11,13 +11,14 @@ const DEFAULT_BALANCE = 5000;
 
 // User Signup Endpoint
 router.post('/', async function(req, res) {
+  console.log(req.body.body)
   const t = await sequelize.transaction();
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(req.body.body.userPassword, SALT_ROUNDS);
     const user = await userModel.create({
-      first: req.body.first,
-      last: req.body.last,
-      email: req.body.email,
+      first: req.body.body.primaryInfo.firstName,
+      last: req.body.body.primaryInfo.lastName,
+      email: req.body.body.primaryInfo.userEmail,
       password: hashedPassword
     });
     if (!user) {
@@ -27,12 +28,14 @@ router.post('/', async function(req, res) {
       userId: user.id,
       balance: DEFAULT_BALANCE
     });
-    res.send(user.toJSON());
+
+    res.status(200).send({message: "Registration Success!", wasResgistered: true});
+    
     await t.commit();
   } catch (err) {
     console.log('user error', err)
     await t.rollback()
-    res.send(err)
+    res.status(500).send({message: "Registration Failed.", wasResgistered: false, err: err})
   }  
 });
 

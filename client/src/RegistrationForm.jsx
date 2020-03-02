@@ -1,22 +1,47 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { Form, Field } from 'react-advanced-form';
 import { Input, Button } from 'react-advanced-form-addons';
+import axios from 'axios';
 
 class RegistrationForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      serialized: null,
+      response: '',
+      wasResgistered: null
+    }
+  }
+
   registerUser = ({ serialized }) => {
-    return fetch('http://localhost:3000/', {
-      body: JSON.stringify(serialized)
+    // console.log(serialized)
+    return axios.post('/users', {
+      body: serialized
     })
+    .then(res =>{
+      console.log(res)
+     try{
+      alert(res.data.message);
+      this.setState({wasResgistered: res.data.wasResgistered})
+     } catch {
+       alert('Registration Failed.');
+       this.setState({wasResgistered: res.data.wasResgistered})
+     }
+    })
+
   }
 
   render() {
+    if(this.state.wasResgistered){
+      return <Redirect to='/' />
+    }
     return (
       <div>
         <h2>Registration</h2>
         <Form
           action={this.registerUser}
-          onSubmitStart={this.props.onSubmitStart}>
+          onSubmitStart={''}>
           <Field.Group name="primaryInfo">
             <Input
               name="userEmail"

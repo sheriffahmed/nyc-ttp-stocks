@@ -12,23 +12,25 @@ class SignupBox extends React.Component {
     super(props);
     this.state = {
       serialized: null,
-      session: false
+      session: ''
     }
   }
 
-  handleSubmitStart = ({ serialized }) => {
-    this.setState({
-      serialized: serialized,
-      session: true
-    })
+  handleSubmitStart = ({ serialized, session }) => {
+    // this.setState({
+    //   serialized: serialized,
+    //   session: session
+    // })
+    console.log(`signup box data`,serialized)
   }
 
   render() {
+    // login Redirect
     if (this.state.serialized !== null) {
       return <Redirect to={{
         pathname: '/portal/test',
         state: {
-          session: true
+          session: this.state.session
         }
 
       }} />
