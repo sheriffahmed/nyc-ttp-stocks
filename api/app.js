@@ -72,6 +72,7 @@ async function init() {
 
   const corsOptions = {
     origin: 'https://nyc-ttp-stocks.herokuapp.com/',
+    credentials: true,
     optionsSuccessStatus: 200
   }
 
